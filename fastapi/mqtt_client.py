@@ -1,0 +1,36 @@
+import paho.mqtt.client as mqtt
+
+
+class MqttClient():
+    def __init__(self, broker_address="5.23.53.69", broker_port=1883):
+        self.client = mqtt.Client()
+        self.client.on_connect = MqttClient.on_connect
+        self.client.on_message = MqttClient.on_message
+        self.client.connect(broker_address, broker_port, 80)
+        self.client.loop_start()
+
+    # Функция, вызываемая при подключении к брокеру MQTT
+    @staticmethod
+    def on_connect(client, userdata, flags, rc):
+        print("Connected with result code " + str(rc))
+        # Подписываемся на темы для получения команд
+        client.subscribe("home/calibrate")
+        client.subscribe("home/close")
+        client.subscribe("home/open")
+        client.subscribe("home/сopcontrol_illuminationen")
+        client.subscribe("home/control_temperature")
+
+    # Функция, вызываемая при получении сообщения от брокера MQTT
+    @staticmethod
+    def on_message(client, userdata, msg):
+        print(msg.topic + " " + str(msg.payload))
+        # Проверяем тему и выполняем соответствующие действия
+        if msg.topic == "home/control_illumination":
+            print('Получили control_illumination, данные занесены в базу данных.')
+        elif msg.topic == "home/control_temperature":
+            print('Получили control_temperature, данные занесены в базу данных.')
+        else:
+            print("Получена неизвестная команда.")
+
+    def send_topic(self, topic, data=None):
+        self.client.publish(topic, data)
