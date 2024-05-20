@@ -19,6 +19,7 @@ class MqttClient():
         client.subscribe("home/open")
         client.subscribe("home/сopcontrol_illuminationen")
         client.subscribe("home/control_temperature")
+        client.subscribe("home/value")
 
     # Функция, вызываемая при получении сообщения от брокера MQTT
     @staticmethod
@@ -26,9 +27,11 @@ class MqttClient():
         print(msg.topic + " " + str(msg.payload))
         # Проверяем тему и выполняем соответствующие действия
         if msg.topic == "home/control_illumination":
-            print('Получили control_illumination, данные занесены в базу данных.')
+            print('Получили данные об уровне освещённости, данные занесены в базу данных.')
         elif msg.topic == "home/control_temperature":
-            print('Получили control_temperature, данные занесены в базу данных.')
+            print('Получили данные об уровне температуры, данные занесены в базу данных.')
+        elif msg.topic == "home/value":
+            print('Получили данные о положении шторы, данные занесены в базу данных.')
         else:
             print("Получена неизвестная команда.")
 

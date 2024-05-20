@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Time
 from sqlalchemy.orm import relationship
 from database import Base
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -10,6 +11,7 @@ class User(Base):
     password = Column(String)
 
     devices = relationship("Device", back_populates="owner")
+
 
 class Device(Base):
     __tablename__ = "devices"
@@ -22,6 +24,6 @@ class Device(Base):
     temperature = Column(Integer)
     close_by_time = Column(Time)
     open_by_time = Column(Time)
-    scale_value = Column(Integer)
+    value = Column(Integer)
 
     owner = relationship("User", back_populates="devices")
