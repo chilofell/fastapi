@@ -52,9 +52,10 @@ def read_users(skip: int = 0,
                limit: int = 100,
                db: Session = Depends(get_db),
                ads_id: Annotated[str | None, Cookie()] = None,
-               token: Annotated[str, Depends(oauth2_scheme)]):
+               # token: Annotated[str, Depends(oauth2_scheme)]):
+               ):
     users = crud.get_users(db, skip=skip, limit=limit)
-    return users, {"ads_id": ads_id, "token": token}
+    return users, {"ads_id": ads_id}
 
 
 @app.get("/users/{user_id}")
