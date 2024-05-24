@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class DeviceBase(BaseModel):
     name: str
+    secret_key: str
 
 
 class DeviceCreate(DeviceBase):
