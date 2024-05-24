@@ -17,7 +17,7 @@ app = FastAPI()
 
 mc = MqttClient()
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://5.23.53.69/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://5.23.53.69/token")
 
 
 # Храним полученные данные
@@ -52,9 +52,9 @@ def read_users(skip: int = 0,
                limit: int = 100,
                db: Session = Depends(get_db),
                ads_id: Annotated[str | None, Cookie()] = None,
-               ):
+               token: Annotated[str, Depends(oauth2_scheme)]):
     users = crud.get_users(db, skip=skip, limit=limit)
-    return users, {"ads_id": ads_id}
+    return users, {"ads_id": ads_id, "token": token}
 
 
 @app.get("/users/{user_id}")
@@ -119,14 +119,14 @@ async def control_illumination():
 @app.get("/control_temperature")
 async def control_temperature():
     global temperature_data
-    await temperature_data_event.wait()
-    temperature_data_event.clear()
+    await temperature_data_event.wait()  # Ожидание получения данных
+    temperature_data_event.clear()  # Сброс для ожидания следующих данных
     return JSONResponse(content=control_temperature)
 
 
 @app.get("/value")
 async def value():
     global value_data
-    await value_data_event.wait()
-    value_data_event.clear()
+    await value_data_event.wait()  # Ожидание получения данных
+    value_data_event.clear()  # Сброс для ожидания следующих данных
     return JSONResponse(content=value)
