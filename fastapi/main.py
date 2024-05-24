@@ -17,7 +17,7 @@ app = FastAPI()
 
 mc = MqttClient()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://5.23.53.69/token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://5.23.53.69/token")
 
 
 # Храним полученные данные
