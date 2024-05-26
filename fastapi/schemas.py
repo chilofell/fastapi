@@ -18,7 +18,7 @@ class Device(DeviceBase):
     temperature: int
     close_by_time: str
     open_by_time: str
-    value: int
+    scale_value: int
 
     class Config:
         orm_mode = True

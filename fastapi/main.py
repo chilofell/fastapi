@@ -1,4 +1,6 @@
 import asyncio
+from datetime import datetime, time
+
 from fastapi import FastAPI, Depends, HTTPException, Cookie
 from sqlalchemy.orm import Session
 from mqtt_client import MqttClient
@@ -73,10 +75,20 @@ def create_device_for_user(
     return crud.create_user_device(db=db, device=device, user_id=user_id)
 
 
-@app.get("/devices")
-def read_devices(skip: int = 0, limit: int = 0, db: Session = Depends(get_db)):
-    devices = crud.get_devices(db, skip=skip, limit=limit)
-    return devices
+@app.get("/devices/{device_id}")
+def read_device(device_id: int, db: Session = Depends(get_db)):
+    db_device =crud.get_device(db, device_id=device_id)
+    if db_device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+    return db_device
+
+
+@app.get("/devices/{device_secret_key}")
+def read_device(device_secret_key: str, db: Session = Depends(get_db)):
+    db_device =crud.get_device(db, device_id=device_secret_key)
+    if db_device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+    return db_device
 
 
 @app.post("/calibrate")
@@ -85,32 +97,37 @@ async def calibrate():
 
 
 @app.post("/close")
-async def close():
+async def close(close_by_time: time):
     mc.send_topic("home/close")
+    return {"close_by_time": close_by_time}
 
 
 @app.post("/open")
-async def open():
+async def open(open_by_time: time):
     mc.send_topic("home/open")
+    return {"open_by_time": open_by_time}
 
 
 @app.post("/control_illumination")
-async def control_illumination():
+async def control_illumination(control_illumination_data: int):
     mc.send_topic("home/control_illumination")
+    return {"control_illumination_data": control_illumination_data}
 
 
 @app.post("/control_temperature")
-async def control_temperature():
+async def control_temperature(control_temperature_data: int):
     mc.send_topic("home/control_temperature")
+    return {"control_temperature_data": control_temperature_data}
 
 
 @app.post("/value")
-async def value():
+async def value(value_data: int):
     mc.send_topic("home/value")
+    return {"value_data": value_data}
 
 
 @app.get("/control_illumination")
-async def control_illumination():
+async def control_illumination(secret_key: str):
     global illumination_data
     await illumination_data_event.wait()    # Ожидание получения данных
     illumination_data_event.clear()      # Сброс для ожидания следующих данных

@@ -28,6 +28,16 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
+# Чтение данных одного устройства по id
+def get_device(db: Session, device_id: int):
+    return db.query(models.Device).filter(models.Device.id == device_id).first()
+
+
+# Чтение данных одного устройства по secret_key
+def get_device(db: Session, device_secret_key: str):
+    return db.query(models.Device).filter(models.Device.secret_key == device_secret_key).first()
+
+
 # Чтение устройств
 def get_devices(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Device).offset(skip).limit(limit).all()

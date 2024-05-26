@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Time
+from sqlalchemy import Column, ForeignKey, Integer, String, Time
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -24,6 +24,6 @@ class Device(Base):
     temperature = Column(Integer)
     close_by_time = Column(Time)
     open_by_time = Column(Time)
-    value = Column(Integer)
+    scale_value = Column(Integer)
 
     owner = relationship("User", back_populates="devices")
