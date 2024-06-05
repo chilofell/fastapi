@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 
 
-class MqttClient:
+class MqttClient():
     def __init__(self, broker_address="5.23.53.69", broker_port=1883):
         self.client = mqtt.Client()
         self.client.on_connect = MqttClient.on_connect
@@ -11,7 +11,7 @@ class MqttClient:
 
     # Функция, вызываемая при подключении к брокеру MQTT
     @staticmethod
-    def on_connect(client, rc):
+    def on_connect(client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
         # Подписываемся на темы для получения команд
         client.subscribe("home/calibrate")
@@ -23,7 +23,7 @@ class MqttClient:
 
     # Функция, вызываемая при получении сообщения от брокера MQTT
     @staticmethod
-    def on_message(msg):
+    def on_message(client, userdata, msg):
         print(msg.topic + " " + str(msg.payload))
         # Проверяем тему и выполняем соответствующие действия
         if msg.topic == "home/control_illumination":
