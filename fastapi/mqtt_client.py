@@ -23,7 +23,7 @@ class MqttClient:
 
     # Функция, вызываемая при получении сообщения от брокера MQTT
     @staticmethod
-    def on_message(msg):
+    def on_message( msg):
         print(msg.topic + " " + str(msg.payload))
         # Проверяем тему и выполняем соответствующие действия
         if msg.topic == "home/control_illumination":
