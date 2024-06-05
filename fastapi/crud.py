@@ -5,13 +5,13 @@ import schemas
 
 
 # Чтение данных одного пользователя по id
-def get_user(db: Session, user_id: int):
+def get_user_by_id(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
 # Чтение данных одного пользователя по email
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+def get_user(db: Session, email: str, password: str):
+    return db.query(models.User).filter(models.User.email == email, models.User.password == password).first()
 
 
 # Чтение нескольких пользователей

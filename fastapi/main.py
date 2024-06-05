@@ -2,25 +2,57 @@ import asyncio
 from datetime import datetime, time
 
 from fastapi import FastAPI, Depends, HTTPException, Cookie
+from fastapi_users import FastAPIUsers
 from sqlalchemy.orm import Session
+from starlette.middleware.cors import CORSMiddleware
+
+from auth import auth_backend
+from manager import get_user_manager
 from mqtt_client import MqttClient
 from typing import Annotated
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 import crud
 import models
 import schemas
-from database import SessionLocal, engine
+from database import SessionLocal, engine, User
+from schemas import UserCreate, UserRead
 
 models.Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 
 mc = MqttClient()
 
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://5.23.53.69/token")
+fastapi_users = FastAPIUsers[User, int](
+    get_user_manager,
+    [auth_backend],
+)
 
+
+app.include_router(
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
+    tags=["auth"],
+)
+
+
+app.include_router(
+    fastapi_users.get_register_router(UserCreate, UserRead),
+    prefix="/auth",
+    tags=["auth"],
+)
+
+
+# Настройка CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:63342"],
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешить все методы
+    allow_headers=["*"],  # Разрешить все заголовки
+)
 
 # Храним полученные данные
 illumination_data = None
@@ -43,7 +75,7 @@ def get_db():
 
 @app.post("/users")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+    db_user = crud.get_user(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email alredy registered")
     return crud.create_user(db=db, user=user)
@@ -54,15 +86,14 @@ def read_users(skip: int = 0,
                limit: int = 100,
                db: Session = Depends(get_db),
                ads_id: Annotated[str | None, Cookie()] = None,
-               # token: Annotated[str, Depends(oauth2_scheme)]):
                ):
     users = crud.get_users(db, skip=skip, limit=limit)
-    return users, {"ads_id": ads_id} #"token": token}
+    return users, {"ads_id": ads_id}
 
 
-@app.get("/users/{user_id}")
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
+@app.get("/users/{user_email}")
+def read_user(user_email: str, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_email=user_email)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
