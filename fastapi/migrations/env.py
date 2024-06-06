@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 
-from models import User
+from models import User     # noqa
 from database import SQLALCHEMY_DATABASE_URL, Base
 
 config = context.config
