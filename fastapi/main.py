@@ -196,8 +196,3 @@ async def delete_device(device_secret_key: str):
         session.delete(device)
         session.commit()
         return {"Ok": True}
-
-
-'''
-эээм...
-'''
